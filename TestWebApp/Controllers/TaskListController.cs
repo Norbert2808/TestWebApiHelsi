@@ -65,8 +65,8 @@ public class TaskListController : ControllerBase
         [FromHeader(Name = HeaderConstants.UserId)] int userId,
         CancellationToken cancellationToken)
     {
-        var vasDeleted = await _taskListService.DeleteAsync(new DeleteTaskListCommand { Id = id, UserId = userId }, cancellationToken);
-        if (!vasDeleted)
+        var wasDeleted = await _taskListService.DeleteAsync(new DeleteTaskListCommand { Id = id, UserId = userId }, cancellationToken);
+        if (!wasDeleted)
         {
             return BadRequest(new
             {
@@ -74,7 +74,10 @@ public class TaskListController : ControllerBase
             });
         }
 
-        return Ok(new { errorMessage = string.Format(CultureInfo.InvariantCulture, ResponseConstants.TaskListSuccessfullyDeleted, id) });
+        return Ok(new
+        {
+            responseMessage = string.Format(CultureInfo.InvariantCulture, ResponseConstants.TaskListSuccessfullyDeleted, id)
+        });
     }
     
     [HttpGet("{id:int}")]
@@ -117,8 +120,8 @@ public class TaskListController : ControllerBase
         [FromHeader(Name = HeaderConstants.UserId)] int userId,
         CancellationToken cancellationToken)
     {
-        var vasAdded = await _taskListService.AddConnectionAsync(requestModel.ToAddConnectionCommand(userId), cancellationToken);
-        if (!vasAdded)
+        var wasAdded = await _taskListService.AddConnectionAsync(requestModel.ToAddConnectionCommand(userId), cancellationToken);
+        if (!wasAdded)
         {
             return BadRequest(new
             {
@@ -128,7 +131,7 @@ public class TaskListController : ControllerBase
 
         return Ok(new
         {
-            errorMessage = string.Format(CultureInfo.InvariantCulture, ResponseConstants.ConnectionHasBeenAdded, requestModel.ConnectionUserId, requestModel.Id)
+            responseMessage = string.Format(CultureInfo.InvariantCulture, ResponseConstants.ConnectionHasBeenAdded, requestModel.ConnectionUserId, requestModel.Id)
         });
     }
     
@@ -160,8 +163,8 @@ public class TaskListController : ControllerBase
         [FromHeader(Name = HeaderConstants.UserId)] int userId,
         CancellationToken cancellationToken)
     {
-        var vasDeleted = await _taskListService.DeleteConnectionAsync(requestModel.ToDeleteConnectionCommand(userId), cancellationToken);
-        if (!vasDeleted)
+        var wasDeleted = await _taskListService.DeleteConnectionAsync(requestModel.ToDeleteConnectionCommand(userId), cancellationToken);
+        if (!wasDeleted)
         {
             return BadRequest(new
             {
@@ -171,7 +174,7 @@ public class TaskListController : ControllerBase
 
         return Ok(new
         {
-            errorMessage = string.Format(CultureInfo.InvariantCulture, ResponseConstants.ConnectionHasBeenDeleted, requestModel.ConnectionUserId, requestModel.Id)
+            responseMessage = string.Format(CultureInfo.InvariantCulture, ResponseConstants.ConnectionHasBeenDeleted, requestModel.ConnectionUserId, requestModel.Id)
         });
     }
 }

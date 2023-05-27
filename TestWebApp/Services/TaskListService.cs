@@ -7,22 +7,31 @@ namespace TestWebApp.Services;
 public class TaskListService : ITaskListService
 {
     private readonly ITaskListRepository _taskListRepository;
+    private readonly ILogger<TaskListService> _logger;
 
-    public TaskListService(ITaskListRepository taskListRepository)
+    public TaskListService(ITaskListRepository taskListRepository, ILogger<TaskListService> logger)
     {
         _taskListRepository = taskListRepository;
+        _logger = logger;
     }
+    
     public async Task<TaskListModel> CreateAsync(AddTaskListCommand command, CancellationToken cancellationToken)
     {
+        _logger.LogInformation("User {userId} created a TaskList with the name '{name}'.", command.UserId, command.Name);
         return await _taskListRepository.CreateAsync(command, cancellationToken);
     }
 
     public async Task<TaskListModel?> UpdateAsync(UpdateTaskListCommand command, CancellationToken cancellationToken)
     {
         var taskList = await _taskListRepository.GetByIdAsync(command.Id, cancellationToken);
-        return HasPermission(command.UserId, taskList)
-            ? await _taskListRepository.UpdateAsync(command, cancellationToken)
-            : null;
+        if (!HasPermission(command.UserId, taskList))
+        {
+            _logger.LogInformation("User {userId} tried to update a TaskList {id}, but he don't have permission.", command.UserId, command.Id);
+            return null;
+        }
+        
+        _logger.LogInformation("User {userId} updated a TaskList {id}.", command.UserId, command.Id);
+        return await _taskListRepository.UpdateAsync(command, cancellationToken);
     }
 
     public async Task<bool> DeleteAsync(DeleteTaskListCommand command, CancellationToken cancellationToken)
@@ -30,9 +39,11 @@ public class TaskListService : ITaskListService
         var taskList = await _taskListRepository.GetByIdAsync(command.Id, cancellationToken);
         if (taskList is null || taskList.Owner.Id != command.UserId)
         {
+            _logger.LogInformation("User {userId} tried to delete a TaskList {id}, but he don't have permission.", command.UserId, command.Id);
             return false;
         }
         
+        _logger.LogInformation("User {userId} deleted a TaskList {id}.", command.UserId, command.Id);
         await _taskListRepository.DeleteAsync(command.Id, cancellationToken);
         return true;
     }
@@ -40,7 +51,14 @@ public class TaskListService : ITaskListService
     public async Task<TaskListFullModel?> GetByIdAsync(GetByIdTaskListCommand command, CancellationToken cancellationToken)
     {
         var taskList = await _taskListRepository.GetByIdAsync(command.Id, cancellationToken);
-        return HasPermission(command.UserId, taskList) ? taskList : null;
+        if (!HasPermission(command.UserId, taskList))
+        {
+            _logger.LogInformation("User {userId} tried to get a TaskList {id}, but he don't have permission.", command.UserId, command.Id);
+            return null;
+        }
+        
+        _logger.LogInformation("User {userId} received a TaskList {id}.", command.UserId, command.Id);
+        return taskList;
     }
 
     public async Task<TaskListsPaginationModel> GetAllAsync(GetAllTaskListCommand command, CancellationToken cancellationToken)
@@ -53,6 +71,7 @@ public class TaskListService : ITaskListService
 
         var result = new TaskListsPaginationModel();
         result.TaskLists = GetPaginationResult(command, result, orderedTaskList);
+        _logger.LogInformation("User {userId} received all TaskLists for which he has permission.", command.UserId);
         return result;
     }
 
@@ -61,10 +80,15 @@ public class TaskListService : ITaskListService
         var taskList = await _taskListRepository.GetByIdAsync(command.Id, cancellationToken);
         if (!HasPermission(command.UserId, taskList))
         {
+            _logger.LogInformation(
+                "User {userId} tried to add a connection between User {connectionUserId} and TaskList {id}, but he don't have permission.",
+                command.UserId, command.ConnectionUserId, command.Id);
             return false;
         }
 
         await _taskListRepository.AddConnectionAsync(command, cancellationToken);
+        _logger.LogInformation("User {userId} added a connection between User {connectionUserId} and TaskList {id}.", 
+            command.UserId, command.ConnectionUserId, command.Id);
         return true;
     }
 
@@ -73,10 +97,15 @@ public class TaskListService : ITaskListService
         var taskList = await _taskListRepository.GetByIdAsync(command.Id, cancellationToken);
         if (!HasPermission(command.UserId, taskList))
         {
+            _logger.LogInformation(
+                "User {userId} tried to delete a connection between User {connectionUserId} and TaskList {id}, but he don't have permission.",
+                command.UserId, command.ConnectionUserId, command.Id);
             return false;
         }
 
         await _taskListRepository.DeleteConnectionAsync(command, cancellationToken);
+        _logger.LogInformation("User {userId} deleted a connection between User {connectionUserId} and TaskList {id}.",
+            command.UserId, command.ConnectionUserId, command.Id);
         return true;
     }
 
