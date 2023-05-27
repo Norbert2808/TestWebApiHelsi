@@ -1,3 +1,4 @@
+using Serilog;
 using TestWebApp.Data;
 using TestWebApp.Filters;
 using TestWebApp.Repositories;
@@ -17,6 +18,14 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITaskListService, TaskListService>();
 builder.Services.AddScoped<IUserRepository, PostgresqlUserRepository>();
 builder.Services.AddScoped<ITaskListRepository, PostgresqlTaskListRepository>();
+
+builder.Services.AddLogging(loggerBuilder =>
+{
+    loggerBuilder.ClearProviders()
+        .AddSerilog(new LoggerConfiguration()
+            .WriteTo.File("logs/app.log")
+            .CreateLogger());
+});
 
 var app = builder.Build();
 
