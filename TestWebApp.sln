@@ -2,6 +2,8 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestWebApp", "TestWebApp\TestWebApp.csproj", "{DCD4F75F-2D2A-46CB-ACBA-16544C5B8226}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BehaviourTests", "BehaviourTests\BehaviourTests.csproj", "{44E78188-16E6-405E-A765-E4A101976873}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +14,9 @@ Global
 		{DCD4F75F-2D2A-46CB-ACBA-16544C5B8226}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DCD4F75F-2D2A-46CB-ACBA-16544C5B8226}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DCD4F75F-2D2A-46CB-ACBA-16544C5B8226}.Release|Any CPU.Build.0 = Release|Any CPU
+		{44E78188-16E6-405E-A765-E4A101976873}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{44E78188-16E6-405E-A765-E4A101976873}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{44E78188-16E6-405E-A765-E4A101976873}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{44E78188-16E6-405E-A765-E4A101976873}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

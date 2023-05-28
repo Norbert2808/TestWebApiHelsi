@@ -17,12 +17,16 @@ public class TaskListService : ITaskListService
     
     public async Task<TaskListModel> CreateAsync(AddTaskListCommand command, CancellationToken cancellationToken)
     {
+        _ = command ?? throw new ArgumentNullException(nameof(command));
+
         _logger.LogInformation("User {userId} created a TaskList with the name '{name}'.", command.UserId, command.Name);
         return await _taskListRepository.CreateAsync(command, cancellationToken);
     }
 
     public async Task<TaskListModel?> UpdateAsync(UpdateTaskListCommand command, CancellationToken cancellationToken)
     {
+        _ = command ?? throw new ArgumentNullException(nameof(command));
+
         var taskList = await _taskListRepository.GetByIdAsync(command.Id, cancellationToken);
         if (!HasPermission(command.UserId, taskList))
         {
@@ -36,6 +40,8 @@ public class TaskListService : ITaskListService
 
     public async Task<bool> DeleteAsync(DeleteTaskListCommand command, CancellationToken cancellationToken)
     { 
+        _ = command ?? throw new ArgumentNullException(nameof(command));
+
         var taskList = await _taskListRepository.GetByIdAsync(command.Id, cancellationToken);
         if (taskList is null || taskList.Owner.Id != command.UserId)
         {
@@ -43,13 +49,15 @@ public class TaskListService : ITaskListService
             return false;
         }
         
-        _logger.LogInformation("User {userId} deleted a TaskList {id}.", command.UserId, command.Id);
         await _taskListRepository.DeleteAsync(command.Id, cancellationToken);
+        _logger.LogInformation("User {userId} deleted a TaskList {id}.", command.UserId, command.Id);
         return true;
     }
 
     public async Task<TaskListFullModel?> GetByIdAsync(GetByIdTaskListCommand command, CancellationToken cancellationToken)
     {
+        _ = command ?? throw new ArgumentNullException(nameof(command));
+
         var taskList = await _taskListRepository.GetByIdAsync(command.Id, cancellationToken);
         if (!HasPermission(command.UserId, taskList))
         {
@@ -63,6 +71,8 @@ public class TaskListService : ITaskListService
 
     public async Task<TaskListsPaginationModel> GetAllAsync(GetAllTaskListCommand command, CancellationToken cancellationToken)
     {
+        _ = command ?? throw new ArgumentNullException(nameof(command));
+
         var taskLists = await _taskListRepository.GetAllAsync(cancellationToken);
         var orderedTaskList = taskLists
             .Where(it => HasPermission(command.UserId, it))
@@ -77,6 +87,8 @@ public class TaskListService : ITaskListService
 
     public async Task<bool> AddConnectionAsync(AddConnectionCommand command, CancellationToken cancellationToken)
     {
+        _ = command ?? throw new ArgumentNullException(nameof(command));
+
         var taskList = await _taskListRepository.GetByIdAsync(command.Id, cancellationToken);
         if (!HasPermission(command.UserId, taskList))
         {
@@ -94,6 +106,8 @@ public class TaskListService : ITaskListService
 
     public async Task<bool> DeleteConnectionAsync(DeleteConnectionCommand command, CancellationToken cancellationToken)
     {
+        _ = command ?? throw new ArgumentNullException(nameof(command));
+
         var taskList = await _taskListRepository.GetByIdAsync(command.Id, cancellationToken);
         if (!HasPermission(command.UserId, taskList))
         {
