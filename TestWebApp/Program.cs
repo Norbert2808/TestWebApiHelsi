@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using TestWebApp.Data;
 using TestWebApp.Filters;
@@ -29,6 +30,8 @@ builder.Services.AddLogging(loggerBuilder =>
 
 var app = builder.Build();
 
+InitDatabase(app.Services);
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -41,3 +44,10 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
+
+static void InitDatabase(IServiceProvider serviceProvider)
+{
+    using var serviceScope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+    var context = serviceScope.ServiceProvider.GetService<ApplicationDbContext>();
+    context?.Database.Migrate();
+}

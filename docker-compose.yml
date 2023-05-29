@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=passwordpassword
+      - POSTGRES_USER=postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - db-vol:/var/lib/postgresql/data
+
+  test-web-app:
+    image: test-web-app
+    build:
+      context: .
+      dockerfile: TestWebApp/Dockerfile
+    environment:
+      - ConnectionStrings__PostgreSQL=Host=db;Port=5432;Database=TaskListUserDb;Username=postgres;Password=passwordpassword
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "5003:80"
+    volumes:
+      - test-web-app-vol:/var/lib/app
+
+volumes:
+  db-vol:
+    driver: local
+  test-web-app-vol:
+    driver: local
